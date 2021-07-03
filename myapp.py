@@ -54,17 +54,16 @@ def extractkeywords(text):
 
 def extractgooglescholararticle(keywords):
     #time.sleep(randint(5,10))
-    query = " ".join(word for word in keywords)
-    query = query.split()
+    #query = " ".join(word for word in keywords)
+    #query = query.split()
     string = []
-    for i in range(0, len(query)):
-        if i < len(query) - 1:
-            string.append(query[i] + "+")
+    for i in range(0, len(keywords)):
+        if i < len(keywords) - 1:
+            string.append(keywords[i] + "+")
         else:
-            string.append(query[i])
+            string.append(keywords[i])
     query = "".join(word for word in string)
     i = 0
-    index = 0
     while i < 30:
         url = "https://scholar.google.com/scholar?start=" + str(i) + "&q=" + query + "&hl=en&as_sdt=0,5"
         #html = requests.get(url, headers=headers, proxies=proxies).text
@@ -75,13 +74,10 @@ def extractgooglescholararticle(keywords):
         article_links = []
         titles = soup.select('.gs_rt')
         abstracts = soup.select('.gs_rs')
-        links = soup.select('.gs_rt')
-        #for result in soup.select('.gs_ri'):
         for title, abstract, link in zip(titles, abstracts, links):
             article_titles.append(title.text)
             article_abstracts.append(abstract.text)
-            article_links.append(link.a['href'])
-            index+=1
+            article_links.append(title.a['href'])
         i += 10
     return article_titles, article_abstracts, article_links
 
