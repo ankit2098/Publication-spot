@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import nltk
+nltk.download('wordnet')
 import re
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from nltk.corpus import stopwords
