@@ -64,7 +64,7 @@ def extractgooglescholararticle(keywords):
             string.append(keywords[i])
     query = "".join(word for word in string)
     i = 0
-    while i < 30:
+    while i < 20:
         url = "https://scholar.google.com/scholar?start=" + str(i) + "&q=" + query + "&hl=en&as_sdt=0,5"
         #html = requests.get(url, headers=headers, proxies=proxies).text
         page = client.get(url)
@@ -115,6 +115,13 @@ st.write("Enter the title of the article")
 title = st.text_input("")
 st.write("Enter the abstract of the article")
 abstract = st.text_area("")
+
+#hiding the side bar
+st.markdown(""" <style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style> """, unsafe_allow_html=True)
+
 if st.button(label="Get recommendations"):
     if not title:
         st.markdown("Please enter a query")
