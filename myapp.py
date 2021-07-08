@@ -114,7 +114,7 @@ st.subheader("Get articles similar to the article you found interesting")
 st.write("Enter the title of the article")
 title = st.text_input("")
 st.write("Enter the abstract of the article")
-abstract = st.text_area("")
+abstract = st.text_area("", height = 300)
 
 #hiding the side bar
 st.markdown(""" <style>
