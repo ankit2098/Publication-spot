@@ -75,6 +75,7 @@ def extractgooglescholararticle(keywords):
         article_links = []
         titles = soup.select('.gs_rt')
         abstracts = soup.select('.gs_rs')
+        links = soup.select('.gs_rt')
         for title, abstract, link in zip(titles, abstracts, links):
             article_titles.append(title.text)
             article_abstracts.append(abstract.text)
