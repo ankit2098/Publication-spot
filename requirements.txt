@@ -114,8 +114,6 @@ path.py==12.5.0
 pathlib==1.0.1
 pathy==0.5.2
 patsy==0.5.1
-Pattern==2.6
-pattern3==3.0.0
 pdfminer.six==20201018
 pdfminer3k==1.3.4
 pexpect==4.8.0
