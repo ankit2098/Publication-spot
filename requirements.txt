@@ -161,7 +161,6 @@ pytz==2021.1
 pyxnat==1.4
 pyzmq==22.1.0
 queuelib==1.6.1
-rake-nltk==1.0.4
 random2==1.0.1
 rapydscript==0.0.2
 rdflib==5.0.0
@@ -193,6 +192,8 @@ spacy-transformers==1.0.3
 srsly==2.4.1
 statsmodels==0.12.2
 streamlit==0.83.0
+streamlit-analytics==0.2.2
+streamlit-metrics==0.1.0
 tabulate==0.8.9
 tempora==4.1.1
 termcolor==1.1.0
