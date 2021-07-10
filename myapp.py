@@ -175,7 +175,7 @@ def tfidf(query, corpus):
 #-----Main function starts-----
 streamlit_analytics.start_tracking()  #analytics
 st.markdown('# Publication Spot')
-st.markdown("## Do literature search based on the paper you find useful, not using keywords!")
+st.markdown("** Do literature search based on the paper you find useful, not using keywords! **")
 st.subheader("Just input the title and abstract of the article, and get similar articles")
 st.write("Enter Title ")
 title = st.text_input("")
