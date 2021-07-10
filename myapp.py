@@ -17,8 +17,19 @@ import ssl
 import time
 from random import randint
 from scraper_api import ScraperAPIClient
+import concurrent.futures
 
 client = ScraperAPIClient('13e21e2becfc6f6f0880ca408bd91d47') #API Key
+
+###define global variables
+global extracted_titles
+global extracted_abstracts
+global extracted_links
+global urls
+extracted_titles = []
+extracted_abstracts = []
+extracted_links = []
+urls = []
 
 def textprocessing(text):
     text = re.sub('[^A-Za-z]+', ' ', text)
@@ -57,27 +68,11 @@ def extractgooglescholararticle(keywords):
             string.append(query[i])
     query = "".join(word for word in string)
     i = 0
-    index = 0
-    while i < 20:
-        url = "https://scholar.google.com/scholar?start=" + str(i) + "&q=" + query + "&hl=en&as_sdt=0,5"
-        #html = requests.get(url, headers=headers, proxies=proxies).text
-        page = client.get(url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        article_titles = []
-        article_abstracts = []
-        article_links = []
-        titles = soup.select('.gs_rt')
-        abstracts = soup.select('.gs_rs')
-        links = soup.select('.gs_rt')
-        #for result in soup.select('.gs_ri'):
-        for title, abstract, link in zip(titles, abstracts, links):
-            if title != None and abstract != None and link.a != None:
-                article_titles.append(title.text)
-                article_abstracts.append(abstract.text)
-                article_links.append(link.a['href'])
-                index+=1
-        i += 10
-    return article_titles, article_abstracts, article_links
+    while i<20:
+        g_url = "https://scholar.google.com/scholar?start=" + str(i) + "&q=" + query + "&hl=en&as_sdt=0,5"
+        urls.append(g_url)
+        i+=10
+    return
 
 def extractsemnaticscholars(keywords):
     query = " ".join(word for word in keywords)
@@ -129,23 +124,25 @@ def relatedgooglescholararticle(title):
     id = soup.find("div", class_="gs_r gs_or gs_scl")
     pid = id["data-cid"]
     i = 0
-    while i < 20:
-        r_url = "https://scholar.google.com/scholar?start=" + str(i) + "&q=related:" + str(pid) + ":scholar.google.com/&hl=en&as_sdt=0,5&scioq=" + query
-        page = client.get(r_url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        titles = soup.select('.gs_rt')
-        abstracts = soup.select('.gs_rs')
-        links = soup.select('.gs_rt')
-        article_titles = []
-        article_abstracts = []
-        article_links = []
-        for title, abstract, link in zip(titles, abstracts, links):
-            if title != None and abstract != None and link.a != None:
-                article_titles.append(title.text)
-                article_abstracts.append(abstract.text)
-                article_links.append(link.a['href'])
-        i += 10
-    return article_titles, article_abstracts, article_links
+    while i<20:
+        rg_url = "https://scholar.google.com/scholar?start=" + str(i) + "&q=related:" + str(pid) + ":scholar.google.com/&hl=en&as_sdt=0,5&scioq=" + query
+        urls.append(rg_url)
+        i+=10
+    return
+
+def extractdata(url):
+    page = client.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+    meta_titles = soup.select('.gs_rt')
+    meta_abstracts = soup.select('.gs_rs')
+    meta_links = soup.select('.gs_rt')
+    # for result in soup.select('.gs_ri'):
+    for title, abstract, link in zip(meta_titles, meta_abstracts, meta_links):
+        if title != None and abstract != None and link.a != None:
+            extracted_titles.append(title.text)
+            extracted_abstracts.append(abstract.text)
+            extracted_links.append(link.a['href'])
+    return
 
 def makecorpus(titles, abstracts):
     corpus = []
@@ -178,10 +175,11 @@ def tfidf(query, corpus):
 #-----Main function starts-----
 streamlit_analytics.start_tracking()  #analytics
 st.markdown('# Publication Spot')
-st.subheader("Get articles similar to the article you found interesting")
-st.write("Enter the title of the article")
+st.header("Get research paper recommendations based on the article you found interesting. No need to use keywords!")
+st.subheader("Just input the title and abstract of the article")
+st.write("Enter Title ")
 title = st.text_input("")
-st.write("Enter the abstract of the article")
+st.write("Enter Abstract")
 abstract = st.text_area("", height= 300)
 
 #hiding the side bar
@@ -203,22 +201,15 @@ if st.button(label="Get recommendations"):
         while i < 5:
             keywords.append((keywords_summary[i][0]))
             i+=1
-        extracted_titles = []
-        extracted_abstracts = []
-        extracted_links = []
-        #Google scholar
-        gs_titles, gs_abstracts, gs_links = extractgooglescholararticle(keywords)
-        extracted_titles.extend(gs_titles)
-        extracted_abstracts.extend(gs_abstracts)
-        extracted_links.extend(gs_links)
-        #related gs articles
-        rgs_titles, rgs_abstracts, rgs_links = relatedgooglescholararticle(title)
-        extracted_titles.extend(rgs_titles)
-        extracted_abstracts.extend(rgs_abstracts)
-        extracted_links.extend(rgs_links)
+        # Google scholar
+        extractgooglescholararticle(keywords)
+        # related gs articles
+        relatedgooglescholararticle(title)
+        #Multithreading
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(extractdata, urls)
         # tfidf implementation
         corpus = makecorpus(extracted_titles, extracted_abstracts)
         X, y = tfidf(cleaned_summary,corpus)
         score(y, X, extracted_titles, extracted_abstracts, extracted_links)
-        
 streamlit_analytics.stop_tracking()
