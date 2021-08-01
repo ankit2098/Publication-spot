@@ -139,7 +139,9 @@ def extractdata(url):
     # for result in soup.select('.gs_ri'):
     for title, abstract, link in zip(meta_titles, meta_abstracts, meta_links):
         if title != None and abstract != None and link.a != None:
-            extracted_titles.append(title.text)
+            title = title.text
+            title = title.replace("[HTML]", "")
+            extracted_titles.append(title)
             extracted_abstracts.append(abstract.text)
             extracted_links.append(link.a['href'])
     return
