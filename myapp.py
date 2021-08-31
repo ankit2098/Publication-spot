@@ -20,7 +20,7 @@ from random import randint
 from scraper_api import ScraperAPIClient
 import concurrent.futures
 
-client = ScraperAPIClient('c676dba641c60ab0d2566e82d32c1133') #API Key
+client = ScraperAPIClient('0b875266de1d5feac1f57f293b803196') #API Key
 
 ###define global variables
 global extracted_titles
